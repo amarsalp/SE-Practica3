@@ -11,11 +11,11 @@ final public class VotingOption {
     // The tax identification number in the Spanish state.
     private final String party;
 
-    public VotingOption(String option) throws BadFormatException {
+    public VotingOption(String option) {
         if (option == null) throw new NullPointerException("Voting option null");
-
         this.party = option;
     }
+
 
     public String getParty() {
         return this.party;
