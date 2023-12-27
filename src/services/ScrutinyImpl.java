@@ -2,9 +2,16 @@ package services;
 
 import data.VotingOption;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScrutinyImpl implements Scrutiny{
+    Map<VotingOption,Integer> scrutinyResults = new HashMap<>();
+
+    public ScrutinyImpl(){
+
+    }
     @Override
     public void initVoteCount(List<VotingOption> validParties) {
 

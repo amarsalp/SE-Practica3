@@ -76,7 +76,8 @@ public class VotingKiosk {
             throw new ProceduralException("The voter has to select a party or init a session");
         //The letter 'c' is used to say it's a confirmations from the voter
         if (conf == 'c') {
-            //TODO
+            System.out.println("Processing your vote");
+
         } else {
             //TODO
         }
