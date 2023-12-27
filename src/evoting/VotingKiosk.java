@@ -8,9 +8,11 @@ import exceptions.serviceExceptions.NotEnabledException;
 import services.ElectoralOrganism;
 import services.LocalService;
 import exceptions.evotingExceptions.ProceduralException;
+import services.Scrutiny;
 import services.ScrutinyImpl;
 
 import java.net.ConnectException;
+import java.util.List;
 
 
 /**
@@ -22,13 +24,17 @@ public class VotingKiosk {
     char opt;
     VotingOption selectedVO;
     Boolean activeSession;
+    List<VotingOption> validParties;
     LocalService localService;
     ElectoralOrganism electoralOrganism;
+    Scrutiny scrutiny;
 
     // Constructor
-    public VotingKiosk() {
+    public VotingKiosk(List<VotingOption> validParties) {
         activeSession = false;
         selectedVO = null;
+        this.validParties = validParties;
+        this.validParties.add(new VotingOption("blankVote"));
     }
 
     // Input events
@@ -91,9 +97,11 @@ public class VotingKiosk {
     public void setLocalService(LocalService localService) {
         this.localService = localService;
     }
-
-    public void setElectoralOrganism(ElectoralOrganism localService) {
-        this.electoralOrganism = localService;
+    public void setElectoralOrganism(ElectoralOrganism electoralOrganism) {
+        this.electoralOrganism = electoralOrganism;
+    }
+    public void setScrutiny(Scrutiny scrutiny) {
+        this.scrutiny = scrutiny;
     }
 }
 
