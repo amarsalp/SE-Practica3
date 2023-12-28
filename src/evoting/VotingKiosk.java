@@ -12,6 +12,7 @@ import services.Scrutiny;
 import services.ScrutinyImpl;
 
 import java.net.ConnectException;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -21,10 +22,10 @@ import java.util.List;
 public class VotingKiosk {
 
     // Class members
-    char opt;
     VotingOption selectedVO, toConfirmVO;
     Boolean activeSession;
-    Nif currentVoter;
+    Voter voter;
+    char opt;
     List<VotingOption> validParties;
     LocalService localService;
     ElectoralOrganism electoralOrganism;
@@ -35,10 +36,20 @@ public class VotingKiosk {
         activeSession = false;
         selectedVO = null;
         toConfirmVO = null;
-        currentVoter = null;
-        opt = '1';
         this.validParties = validParties;
         this.validParties.add(new VotingOption("blankVote"));
+        this.voter = new Voter();
+    }
+
+    protected class Voter{
+        private enum State{ disabled, enabled }
+        State state;
+        Nif nif;
+
+        protected Voter(){
+            nif = null;
+            state = State.disabled;
+        }
     }
 
     // Input events
@@ -47,7 +58,7 @@ public class VotingKiosk {
     }
 
     public void setDocument(char opt) throws ProceduralException {
-        if (!activeSession) throw new ProceduralException("The voter has to init an e-vote session");
+        if (activeSession) throw new ProceduralException("The voter has to init an e-vote session");
         this.opt = opt;
     }
 
@@ -65,12 +76,16 @@ public class VotingKiosk {
     public void enterNif(Nif nif) throws NotEnabledException, ConnectException, BadFormatException {
         //Check NIF
         electoralOrganism.canVote(new Nif(nif.getNif()));
-        currentVoter = nif;
+        voter.state = Voter.State.enabled;
+        voter.nif = nif;
         System.out.println("The nif is able to vote");
     }
 
     public void initOptionsNavigation() {
-        //todo
+        Iterator<VotingOption> it = validParties.iterator();
+        while (it.hasNext()){
+            System.out.println(it.next().getParty());
+        }
     }
 
     public void consultVotingOption(VotingOption vopt) {
@@ -90,7 +105,7 @@ public class VotingKiosk {
         //The letter 'c' is used to say it's a confirmations from the voter
         if (conf == 'c') {
             scrutiny.scrutinize(selectedVO);
-            electoralOrganism.disableVoter(currentVoter);
+            electoralOrganism.disableVoter(voter.nif);
         } else {
             toConfirmVO = null;
             selectedVO = null;
