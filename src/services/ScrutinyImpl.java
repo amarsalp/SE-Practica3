@@ -39,6 +39,7 @@ public class ScrutinyImpl implements Scrutiny {
     public void scrutinize(VotingOption vopt) {
         if (!validParties.contains(vopt)) {
             scrutinyResults.replace(nullVote, scrutinyResults.get(nullVote) + 1);
+            totalVotes++;
         } else {
             scrutinyResults.replace(vopt, scrutinyResults.get(vopt) + 1);
             totalVotes++;
