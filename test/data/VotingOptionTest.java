@@ -31,8 +31,8 @@ class VotingOptionTest implements EqualsAndHashCodeTest {
     public void test_equals1() throws BadFormatException {
         votingOption = new VotingOption("party1");
         votingOption2 = new VotingOption("party1");
-        assertTrue(votingOption.equals(votingOption2));
-        assertTrue(votingOption2.equals(votingOption));
+        assertEquals(votingOption, votingOption2);
+        assertEquals(votingOption2, votingOption);
     }
 
     @Override
@@ -40,8 +40,8 @@ class VotingOptionTest implements EqualsAndHashCodeTest {
     public void test_equals2() throws BadFormatException {
         votingOption = new VotingOption("party1");
         votingOption2 = new VotingOption("party2");
-        assertFalse(votingOption.equals(votingOption2));
-        assertFalse(votingOption2.equals(votingOption));
+        assertNotEquals(votingOption, votingOption2);
+        assertNotEquals(votingOption2, votingOption);
     }
 
     @Override

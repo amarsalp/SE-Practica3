@@ -65,8 +65,8 @@ class NifTest implements EqualsAndHashCodeTest {
     public void test_equals1() throws BadFormatException {
         nif = new Nif("12345678A");
         nif2 = new Nif("12345678A");
-        assertTrue(nif.equals(nif2));
-        assertTrue(nif2.equals(nif));
+        assertEquals(nif, nif2);
+        assertEquals(nif2, nif);
     }
 
     @Override
@@ -74,8 +74,8 @@ class NifTest implements EqualsAndHashCodeTest {
     public void test_equals2() throws BadFormatException {
         nif = new Nif("12345678A");
         nif2 = new Nif("87654321B");
-        assertFalse(nif.equals(nif2));
-        assertFalse(nif2.equals(nif));
+        assertNotEquals(nif, nif2);
+        assertNotEquals(nif2, nif);
     }
 
     @Override

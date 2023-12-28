@@ -64,8 +64,8 @@ class PasswordTest implements EqualsAndHashCodeTest {
     public void test_equals1() throws BadFormatException {
         password = new Password("Abcdefg1");
         password2 = new Password("Abcdefg1");
-        assertTrue(password.equals(password2));
-        assertTrue(password2.equals(password));
+        assertEquals(password, password2);
+        assertEquals(password2, password);
     }
 
     @Override
@@ -73,8 +73,8 @@ class PasswordTest implements EqualsAndHashCodeTest {
     public void test_equals2() throws BadFormatException {
         password = new Password("Abcdefg1");
         password2 = new Password("Abcdefg2");
-        assertFalse(password.equals(password2));
-        assertFalse(password2.equals(password));
+        assertNotEquals(password, password2);
+        assertNotEquals(password2, password);
     }
 
     @Override

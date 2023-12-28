@@ -36,20 +36,15 @@ public class VotingKiosk {
         activeSession = false;
         selectedVO = null;
         toConfirmVO = null;
+        opt = '0';
         this.validParties = validParties;
+
         this.validParties.add(new VotingOption("blankVote"));
-        this.voter = new Voter();
-    }
-
-    protected class Voter{
-        private enum State{ disabled, enabled }
-        State state;
-        Nif nif;
-
-        protected Voter(){
-            nif = null;
-            state = State.disabled;
+        Iterator<VotingOption> it = this.validParties.iterator();
+        while (it.hasNext()) {
+            System.out.println(it.next().getParty());
         }
+        this.voter = new Voter();
     }
 
     // Input events
@@ -57,13 +52,11 @@ public class VotingKiosk {
         activeSession = true;
     }
 
-    public void setDocument(char opt) throws ProceduralException {
-        if (activeSession) throw new ProceduralException("The voter has to init an e-vote session");
+    public void setDocument(char opt) {
         this.opt = opt;
     }
 
-    public void enterAccount(String login, Password pssw) throws InvalidAccountException, ProceduralException {
-        if (!activeSession) throw new ProceduralException("The voter has to init an e-vote session");
+    public void enterAccount(String login, Password pssw) throws InvalidAccountException {
         localService.verifyAccount(login, pssw);
         System.out.println("Account is valid");
     }
@@ -83,7 +76,7 @@ public class VotingKiosk {
 
     public void initOptionsNavigation() {
         Iterator<VotingOption> it = validParties.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             System.out.println(it.next().getParty());
         }
     }
@@ -106,6 +99,7 @@ public class VotingKiosk {
         if (conf == 'c') {
             scrutiny.scrutinize(selectedVO);
             electoralOrganism.disableVoter(voter.nif);
+            voter.state = Voter.State.disabled;
         } else {
             toConfirmVO = null;
             selectedVO = null;
@@ -128,6 +122,18 @@ public class VotingKiosk {
 
     public void setScrutiny(Scrutiny scrutiny) {
         this.scrutiny = scrutiny;
+    }
+
+    protected static class Voter {
+        State state;
+        Nif nif;
+
+        protected Voter() {
+            nif = null;
+            state = State.disabled;
+        }
+
+        protected enum State {disabled, enabled}
     }
 }
 
