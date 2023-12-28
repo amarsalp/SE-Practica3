@@ -17,6 +17,7 @@ class NifTest implements EqualsAndHashCodeTest {
     void test_getNif() throws BadFormatException {
         nif = new Nif("12345678A");
         assertEquals("12345678A",nif.getNif());
+
     }
 
     @Test
