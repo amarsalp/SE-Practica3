@@ -22,8 +22,9 @@ public class VotingKiosk {
 
     // Class members
     char opt;
-    VotingOption selectedVO;
+    VotingOption selectedVO, toConfirmVO;
     Boolean activeSession;
+    Nif currentVoter;
     List<VotingOption> validParties;
     LocalService localService;
     ElectoralOrganism electoralOrganism;
@@ -33,6 +34,9 @@ public class VotingKiosk {
     public VotingKiosk(List<VotingOption> validParties) {
         activeSession = false;
         selectedVO = null;
+        toConfirmVO = null;
+        currentVoter = null;
+        opt = '1';
         this.validParties = validParties;
         this.validParties.add(new VotingOption("blankVote"));
     }
@@ -42,11 +46,13 @@ public class VotingKiosk {
         activeSession = true;
     }
 
-    public void setDocument(char opt) {
+    public void setDocument(char opt) throws ProceduralException {
+        if (!activeSession) throw new ProceduralException("The voter has to init an e-vote session");
         this.opt = opt;
     }
 
-    public void enterAccount(String login, Password pssw) throws InvalidAccountException {
+    public void enterAccount(String login, Password pssw) throws InvalidAccountException, ProceduralException {
+        if (!activeSession) throw new ProceduralException("The voter has to init an e-vote session");
         localService.verifyAccount(login, pssw);
         System.out.println("Account is valid");
     }
@@ -57,14 +63,14 @@ public class VotingKiosk {
     }
 
     public void enterNif(Nif nif) throws NotEnabledException, ConnectException, BadFormatException {
-        Nif nifToCheck = new Nif(nif.getNif());
         //Check NIF
-        electoralOrganism.canVote(nifToCheck);
+        electoralOrganism.canVote(new Nif(nif.getNif()));
+        currentVoter = nif;
         System.out.println("The nif is able to vote");
     }
 
     public void initOptionsNavigation() {
-        //TODO
+        //todo
     }
 
     public void consultVotingOption(VotingOption vopt) {
@@ -74,32 +80,37 @@ public class VotingKiosk {
     public void vote() throws ProceduralException {
         if (selectedVO == null || !activeSession)
             throw new ProceduralException("The voter has to select a party or init a session");
+        toConfirmVO = selectedVO;
         System.out.println("Party selected, confirmation of the selection needed");
     }
 
     public void confirmVotingOption(char conf) throws ConnectException, ProceduralException {
-        if (selectedVO == null || !activeSession)
+        if (toConfirmVO == null || !activeSession)
             throw new ProceduralException("The voter has to select a party or init a session");
         //The letter 'c' is used to say it's a confirmations from the voter
         if (conf == 'c') {
-            System.out.println("Processing your vote");
-
+            scrutiny.scrutinize(selectedVO);
+            electoralOrganism.disableVoter(currentVoter);
         } else {
-            //TODO
+            toConfirmVO = null;
+            selectedVO = null;
         }
     }
 
     // Internal operation, not required
     private void finalizeSession() {
+        activeSession = false;
     }
 
     //Setter methods for injecting dependencies and additional methods
     public void setLocalService(LocalService localService) {
         this.localService = localService;
     }
+
     public void setElectoralOrganism(ElectoralOrganism electoralOrganism) {
         this.electoralOrganism = electoralOrganism;
     }
+
     public void setScrutiny(Scrutiny scrutiny) {
         this.scrutiny = scrutiny;
     }
