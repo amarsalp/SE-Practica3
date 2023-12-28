@@ -26,14 +26,14 @@ public class VotingKioskTest {
     Scrutiny scrutiny;
 
     @BeforeEach
-    void setUp() throws BadFormatException {
+    void setUp() throws BadFormatException{
         validParties = new ArrayList(List.of(new VotingOption("Party1"),
                 new VotingOption("Party2"),
                 new VotingOption("Party3")));
-        VotingKiosk votingKiosk = new VotingKiosk(validParties);
-        ElectoralOrganism electoralOrganism = new ElectoralOrganismImpl();
-        LocalService localService = new LocalServiceImpl();
-        Scrutiny scrutiny = new ScrutinyImpl(validParties);
+        votingKiosk = new VotingKiosk(validParties);
+        electoralOrganism = new ElectoralOrganismImpl();
+        localService = new LocalServiceImpl();
+        scrutiny = new ScrutinyImpl(validParties);
         votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
