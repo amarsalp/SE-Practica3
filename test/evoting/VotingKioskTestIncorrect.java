@@ -119,5 +119,28 @@ public class VotingKioskTestIncorrect {
         assertEquals(1, scrutiny.getTotal());
     }
 
+    @Test
+    @DisplayName("Test scrutiny blank vote")
+    void BlankVoteTest() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("blankVote");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getBlanks());
+        assertEquals(1, scrutiny.getTotal());
+    }
+
+    @Test
+    @DisplayName("Test scrutiny Voting Option")
+    void VotingOptionTest() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("Party1");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getVotesFor(vO));
+        assertEquals(1, scrutiny.getTotal());
+    }
 
 }
