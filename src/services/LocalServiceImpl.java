@@ -18,7 +18,7 @@ public class LocalServiceImpl implements LocalService {
     @Override
     public void verifyAccount(String login, Password pssw) throws InvalidAccountException {
         Password password = db.get(login);
-        //user does not exists or password is incorrect
-        if (password == null || !pssw.equals(password)) throw new InvalidAccountException("Account is not valid");
+        //user does not exist or password is incorrect
+        if (!pssw.equals(password)) throw new InvalidAccountException("Account is not valid");
     }
 }

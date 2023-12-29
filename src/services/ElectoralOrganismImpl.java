@@ -23,9 +23,9 @@ public class ElectoralOrganismImpl implements ElectoralOrganism {
 
     @Override
     public void canVote(Nif nif) throws NotEnabledException, ConnectException{
-        Boolean hasVoted = db.get(nif);
+        Boolean canVote = db.get(nif);
         //if the nif is not on the database (the voter is not in the correct vote center) or if the voter has already vote
-        if (hasVoted == null || !hasVoted) throw new NotEnabledException("You can't vote");
+        if (canVote == null || !canVote) throw new NotEnabledException("You can't vote");
     }
 
     @Override
