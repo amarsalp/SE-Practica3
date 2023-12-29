@@ -14,7 +14,6 @@ public class ElectoralOrganismImpl implements ElectoralOrganism {
 
     public ElectoralOrganismImpl() throws BadFormatException {
         db = new HashMap<>();
-
         //nif of a voter that has not vote
         db.put(new Nif("12345678A"), true);
         //nif of a voter has already vote
@@ -22,7 +21,7 @@ public class ElectoralOrganismImpl implements ElectoralOrganism {
     }
 
     @Override
-    public void canVote(Nif nif) throws NotEnabledException, ConnectException{
+    public void canVote(Nif nif) throws NotEnabledException, ConnectException {
         Boolean canVote = db.get(nif);
         //if the nif is not on the database (the voter is not in the correct vote center) or if the voter has already vote
         if (canVote == null || !canVote) throw new NotEnabledException("You can't vote");

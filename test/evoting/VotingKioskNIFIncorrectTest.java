@@ -1,11 +1,9 @@
 package evoting;
 
 import data.*;
-import evoting.VotingKiosk.Voter;
 import exceptions.dataExceptions.BadFormatException;
 import exceptions.dataExceptions.InvalidDniException;
 import exceptions.evotingExceptions.ProceduralException;
-import exceptions.serviceExceptions.InvalidAccountException;
 import exceptions.serviceExceptions.NotEnabledException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class VotingKioskTestIncorrect {
+public class VotingKioskNIFIncorrectTest {
 
     List<VotingOption> validParties;
     VotingKiosk votingKiosk;
@@ -35,7 +33,7 @@ public class VotingKioskTestIncorrect {
         votingKiosk = new VotingKiosk(validParties);
         electoralOrganism = new ElectoralOrganismImpl();
         localService = new LocalServiceImpl();
-        scrutiny = new ScrutinyImpl(validParties);
+        scrutiny = new ScrutinyImpl();
         votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
@@ -45,18 +43,16 @@ public class VotingKioskTestIncorrect {
         Test no activeSession
         Test mal documento setDocuement
         Test mal eneterAccount
-
-
         Test no confirmIdentif
         assertThrows(InvalidDniException.class, () -> {
             votingKiosk.confirmVotingOption('c');
         });
         Test false nif, not in the dataase enterNif
         Test confultar un vopt falso consultVotingOption
-
-        
         Test no activeSession vote
         Test no activeSession, no confirm vote ConfirmVotingOption
+
+        Test persona vote dos veces
      */
 
     @Test
@@ -69,10 +65,9 @@ public class VotingKioskTestIncorrect {
 
     @Test
     @DisplayName("Error format Nif")
-    void NotCorrectNifTest() throws BadFormatException{
-        Nif nif = new Nif("A");
+    void NotCorrectNifTest(){
         assertThrows(BadFormatException.class, () -> {
-            votingKiosk.enterNif(nif);
+            votingKiosk.enterNif(new Nif("A"));
         });
     }
 
@@ -119,28 +114,6 @@ public class VotingKioskTestIncorrect {
         assertEquals(1, scrutiny.getTotal());
     }
 
-    @Test
-    @DisplayName("Test scrutiny blank vote")
-    void BlankVoteTest() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("blankVote");
-        votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
-        votingKiosk.vote();
-        votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getBlanks());
-        assertEquals(1, scrutiny.getTotal());
-    }
 
-    @Test
-    @DisplayName("Test scrutiny Voting Option")
-    void VotingOptionTest() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("Party1");
-        votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
-        votingKiosk.vote();
-        votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getVotesFor(vO));
-        assertEquals(1, scrutiny.getTotal());
-    }
 
 }

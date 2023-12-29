@@ -18,13 +18,13 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VotingKioskTest {
+public class VotingKioskNIFTest {
     List<VotingOption> validParties;
     VotingKiosk votingKiosk;
     ElectoralOrganism electoralOrganism;
     LocalService localService;
     Scrutiny scrutiny;
-
+/*opciones de voto son nulas al final de la votacion*/
     @BeforeEach
     void setUp() throws BadFormatException {
         validParties = new ArrayList(List.of(new VotingOption("Party1"),
@@ -33,7 +33,7 @@ public class VotingKioskTest {
         votingKiosk = new VotingKiosk(validParties);
         electoralOrganism = new ElectoralOrganismImpl();
         localService = new LocalServiceImpl();
-        scrutiny = new ScrutinyImpl(validParties);
+        scrutiny = new ScrutinyImpl();
         votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
@@ -101,5 +101,29 @@ public class VotingKioskTest {
         assertEquals(1, scrutiny.getVotesFor(validParties.get(2)));
         assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
         assertEquals(2, scrutiny.getTotal());
+    }
+
+    @Test
+    @DisplayName("Test scrutiny blank vote")
+    void BlankVoteTest() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("blankVote");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getBlanks());
+        assertEquals(1, scrutiny.getTotal());
+    }
+
+    @Test
+    @DisplayName("Test scrutiny Voting Option")
+    void VotingOptionTest() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("Party1");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getVotesFor(vO));
+        assertEquals(1, scrutiny.getTotal());
     }
 }

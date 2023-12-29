@@ -14,12 +14,11 @@ public class ScrutinyImpl implements Scrutiny {
     VotingOption nullVote;
     VotingOption blankVote;
 
-    public ScrutinyImpl(List<VotingOption> validParties) {
+    public ScrutinyImpl() {
         scrutinyResults = new HashMap<>();
         totalVotes = 0;
         nullVote = new VotingOption("nullVote");
         blankVote = new VotingOption("blankVote");
-        initVoteCount(validParties);
     }
 
     @Override
@@ -37,12 +36,9 @@ public class ScrutinyImpl implements Scrutiny {
 
     @Override
     public void scrutinize(VotingOption vopt) {
-        System.out.println("fuera");
         if (!validParties.contains(vopt)) {
-            System.out.println("if");
             scrutinyResults.replace(nullVote, scrutinyResults.get(nullVote) + 1);
         } else {
-            System.out.println("else");
             scrutinyResults.replace(vopt, scrutinyResults.get(vopt) + 1);
         }
         totalVotes++;
