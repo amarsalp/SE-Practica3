@@ -24,21 +24,22 @@ public class VotingKioskNIFTest {
     ElectoralOrganism electoralOrganism;
     LocalService localService;
     Scrutiny scrutiny;
-/*opciones de voto son nulas al final de la votacion*/
+
+
     @BeforeEach
     void setUp() throws BadFormatException {
         validParties = new ArrayList(List.of(new VotingOption("Party1"),
                 new VotingOption("Party2"),
                 new VotingOption("Party3")));
-        votingKiosk = new VotingKiosk(validParties);
+        scrutiny = new ScrutinyImpl();
+        votingKiosk = new VotingKiosk(validParties, scrutiny);
         electoralOrganism = new ElectoralOrganismImpl();
         localService = new LocalServiceImpl();
-        scrutiny = new ScrutinyImpl();
-        votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
     }
 
+    /*opciones de voto son nulas al final de la votacion*/
     //el mismo votante intenta votar dos veces
     @Test
     @DisplayName("If no voter has voted all the results of the scrutiny must be zero")

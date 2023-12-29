@@ -36,19 +36,21 @@ public class VotingKiosk {
     HumanBiometricScanner humanBiometricScanner;
 
     // Constructor
-    public VotingKiosk(List<VotingOption> validParties) {
+    public VotingKiosk(List<VotingOption> validParties, Scrutiny scrutiny) {
         activeSession = false;
         selectedVO = null;
         toConfirmVO = null;
         this.validParties = validParties;
         this.validParties.add(new VotingOption("blankVote"));
-        this.voter = new Voter();
+        //Scrutiny is the only dependency that has to be injected through the constructor since we need to start the vote count.
+        this.scrutiny = scrutiny;
+        scrutiny.initVoteCount(validParties);
     }
 
     // Input events
     public void initVoting() {
         activeSession = true;
-        scrutiny.initVoteCount(validParties);
+        voter = new Voter();
     }
 
     public void setDocument(char opt) {
@@ -146,6 +148,8 @@ public class VotingKiosk {
     // Internal operations
     private void finalizeSession() {
         activeSession = false;
+        //remove all the data from the current voter
+        voter = null;
     }
 
     private void verifiyBiometricData(BiometricData humanBioD, BiometricData passpBioD)
@@ -163,17 +167,13 @@ public class VotingKiosk {
         fingerBiometric = null;
     }
 
-    //Setter methods for injecting dependencies and additional methods
+    //Setter methods for injecting dependencies
     public void setLocalService(LocalService localService) {
         this.localService = localService;
     }
 
     public void setElectoralOrganism(ElectoralOrganism electoralOrganism) {
         this.electoralOrganism = electoralOrganism;
-    }
-
-    public void setScrutiny(Scrutiny scrutiny) {
-        this.scrutiny = scrutiny;
     }
 
     public void setPassportBiometricReader(PassportBiometricReader passportBiometricReader) {

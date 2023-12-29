@@ -14,9 +14,9 @@ public class ElectoralOrganismImpl implements ElectoralOrganism {
 
     public ElectoralOrganismImpl() throws BadFormatException {
         db = new HashMap<>();
-        //nif of a voter that has not vote
+        //nif of a voter that didn't vote
         db.put(new Nif("12345678A"), true);
-        //nif of a voter has already vote
+        //nif of a voter that has already vote
         db.put(new Nif("98765432F"), false);
     }
 

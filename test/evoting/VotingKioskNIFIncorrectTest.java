@@ -30,11 +30,10 @@ public class VotingKioskNIFIncorrectTest {
         validParties = new ArrayList(List.of(new VotingOption("Party1"),
                 new VotingOption("Party2"),
                 new VotingOption("Party3")));
-        votingKiosk = new VotingKiosk(validParties);
+        scrutiny = new ScrutinyImpl();
+        votingKiosk = new VotingKiosk(validParties, scrutiny);
         electoralOrganism = new ElectoralOrganismImpl();
         localService = new LocalServiceImpl();
-        scrutiny = new ScrutinyImpl();
-        votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
     }
