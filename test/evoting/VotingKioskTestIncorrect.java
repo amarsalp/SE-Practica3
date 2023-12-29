@@ -41,4 +41,83 @@ public class VotingKioskTestIncorrect {
         votingKiosk.setLocalService(localService);
     }
 
+    /*
+        Test no activeSession
+        Test mal documento setDocuement
+        Test mal eneterAccount
+
+
+        Test no confirmIdentif
+        assertThrows(InvalidDniException.class, () -> {
+            votingKiosk.confirmVotingOption('c');
+        });
+        Test false nif, not in the dataase enterNif
+        Test confultar un vopt falso consultVotingOption
+
+        
+        Test no activeSession vote
+        Test no activeSession, no confirm vote ConfirmVotingOption
+     */
+
+    @Test
+    @DisplayName("not a confirmIdentif")
+    void confirmIdentTest() {
+        assertThrows(InvalidDniException.class, () -> {
+            votingKiosk.confirmIdentif('s');
+        });
+    }
+
+    @Test
+    @DisplayName("Error format Nif")
+    void NotCorrectNifTest() throws BadFormatException{
+        Nif nif = new Nif("A");
+        assertThrows(BadFormatException.class, () -> {
+            votingKiosk.enterNif(nif);
+        });
+    }
+
+    @Test
+    @DisplayName("Nif not in the db")
+    void NotInDBNif() throws BadFormatException{
+        Nif nif = new Nif("23456789A");
+        assertThrows(NotEnabledException.class, () -> {
+            votingKiosk.enterNif(nif);
+        });
+    }
+    @Test
+    @DisplayName("Null voting option")
+    void NotConfirmedVote() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("Patata");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        assertEquals(vO,votingKiosk.selectedVO);
+        votingKiosk.vote();
+        assertEquals(vO, votingKiosk.selectedVO);
+        votingKiosk.confirmVotingOption('s');
+        assertNull(votingKiosk.toConfirmVO);
+        assertNull(votingKiosk.selectedVO);
+    }
+    @Test
+    @DisplayName("No active session")
+    void NotActiveSession(){
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.vote();
+        });
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.confirmVotingOption('c');
+        });
+    }
+    @Test
+    @DisplayName("Null voting option")
+    void NullVotingOption() throws ProceduralException, ConnectException {
+        VotingOption vO = new VotingOption("Patata");
+        votingKiosk.initVoting();
+        votingKiosk.consultVotingOption(vO);
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getNulls());
+        assertEquals(1, scrutiny.getTotal());
+    }
+
+
 }

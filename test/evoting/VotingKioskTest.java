@@ -39,19 +39,7 @@ public class VotingKioskTest {
         votingKiosk.setLocalService(localService);
     }
 
-    /*
-        Test no activeSession
-        Test mal documento setDocuement
-        Test mal eneterAccount
-        Test no confirmIdentif
-        assertThrows(InvalidDniException.class, () -> {
-            votingKiosk.confirmVotingOption('c');
-        });
-        Test false nif, not in the dataase enterNif
-        Test confultar un vopt falso consultVotingOption
-        Test no activeSession vote
-        Test no activeSession, no confirm vote ConfirmVotingOption
-     */
+
 
     @Test
     @DisplayName("Correct voting session")
