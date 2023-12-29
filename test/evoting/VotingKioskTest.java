@@ -72,6 +72,7 @@ public class VotingKioskTest {
         votingKiosk.vote();
         assertEquals(votingKiosk.toConfirmVO, validParties.get(1));
         votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
         assertThrows(NotEnabledException.class, () -> {
             electoralOrganism.canVote(nif);
         });

@@ -24,7 +24,7 @@ public class ScrutinyImpl implements Scrutiny {
 
     @Override
     public void initVoteCount(List<VotingOption> validParties) {
-        //We take for granted that validParties list only contains a list of well formed VotingOption objects
+        //We take for granted that validParties list only contains a list of well-formed VotingOption objects
         // (it not contains the null and blank options)
         this.validParties = validParties;
         Iterator<VotingOption> it = validParties.iterator();
@@ -37,9 +37,12 @@ public class ScrutinyImpl implements Scrutiny {
 
     @Override
     public void scrutinize(VotingOption vopt) {
+        System.out.println("fuera");
         if (!validParties.contains(vopt)) {
+            System.out.println("if");
             scrutinyResults.replace(nullVote, scrutinyResults.get(nullVote) + 1);
         } else {
+            System.out.println("else");
             scrutinyResults.replace(vopt, scrutinyResults.get(vopt) + 1);
         }
         totalVotes++;
