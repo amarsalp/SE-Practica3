@@ -30,32 +30,32 @@ public class VotingKioskTest {
         validParties = new ArrayList(List.of(new VotingOption("Party1"),
                 new VotingOption("Party2"),
                 new VotingOption("Party3")));
-        VotingKiosk votingKiosk = new VotingKiosk(validParties);
-        ElectoralOrganism electoralOrganism = new ElectoralOrganismImpl();
-        LocalService localService = new LocalServiceImpl();
-        Scrutiny scrutiny = new ScrutinyImpl(validParties);
+        votingKiosk = new VotingKiosk(validParties);
+        electoralOrganism = new ElectoralOrganismImpl();
+        localService = new LocalServiceImpl();
+        scrutiny = new ScrutinyImpl(validParties);
         votingKiosk.setScrutiny(scrutiny);
         votingKiosk.setElectoralOrganism(electoralOrganism);
         votingKiosk.setLocalService(localService);
     }
 
-    /*
-        Test no activeSession
-        Test mal documento setDocuement
-        Test mal eneterAccount
-        Test no confirmIdentif
-        assertThrows(InvalidDniException.class, () -> {
-            votingKiosk.confirmVotingOption('c');
-        });
-        Test false nif, not in the dataase enterNif
-        Test confultar un vopt falso consultVotingOption
-        Test no activeSession vote
-        Test no activeSession, no confirm vote ConfirmVotingOption
-     */
+    //el mismo votante intenta votar dos veces
+    @Test
+    @DisplayName("If no voter has voted all the results of the scrutiny must be zero")
+    void zero_votes_test() {
+        votingKiosk.initVoting();
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(1)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(2)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
+        assertEquals(0, scrutiny.getBlanks());
+        assertEquals(0, scrutiny.getNulls());
+        assertEquals(0, scrutiny.getTotal());
+    }
 
     @Test
     @DisplayName("Correct voting session")
-    void test_Voting1() throws ProceduralException, InvalidAccountException, InvalidDniException, NotEnabledException, ConnectException, BadFormatException {
+    void correct_voting_test() throws ProceduralException, InvalidAccountException, InvalidDniException,
+            NotEnabledException, ConnectException, BadFormatException {
         votingKiosk.initVoting();
         assertTrue(votingKiosk.activeSession);
         votingKiosk.setDocument('N');
@@ -72,17 +72,33 @@ public class VotingKioskTest {
         votingKiosk.vote();
         assertEquals(votingKiosk.toConfirmVO, validParties.get(1));
         votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
         assertThrows(NotEnabledException.class, () -> {
             electoralOrganism.canVote(nif);
         });
         assertEquals(Voter.State.disabled, votingKiosk.voter.state);
-
+        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(2)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
+        assertEquals(1, scrutiny.getTotal());
     }
 
     @Test
-    @DisplayName("Correct voting session")
-    void test_Voting2()  {
-        //
+    @DisplayName("Voting wit a different voter to see the persistence of the data on Scrutiny")
+    void scrutiny_persistence_test() throws ProceduralException, InvalidAccountException, InvalidDniException,
+            NotEnabledException, ConnectException, BadFormatException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        Nif nif = new Nif("12345678A");
+        votingKiosk.enterNif(nif);
+        votingKiosk.initOptionsNavigation();
+        votingKiosk.consultVotingOption(validParties.get(1));
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
+        assertEquals(1, scrutiny.getVotesFor(validParties.get(2)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
+        assertEquals(2, scrutiny.getTotal());
     }
 }

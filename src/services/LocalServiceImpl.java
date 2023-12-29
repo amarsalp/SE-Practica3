@@ -11,8 +11,7 @@ public class LocalServiceImpl implements LocalService {
     Map<String, Password> db = new HashMap<>();
 
     public LocalServiceImpl() throws BadFormatException {
-        Password password = new Password("Password1");
-        db.put("user", password);
+        db.put("user", new Password("Password1"));
     }
 
     @Override
