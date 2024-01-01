@@ -10,14 +10,13 @@ import java.util.Map;
 
 
 public class ElectoralOrganismImpl implements ElectoralOrganism {
-    Map<Nif, Boolean> db;
+    private Map<Nif, Boolean> db;
 
     public ElectoralOrganismImpl() throws BadFormatException {
         db = new HashMap<>();
         //nif of a voter that didn't vote
         db.put(new Nif("12345678A"), true);
-        //nif of a voter that has already vote
-        db.put(new Nif("98765432F"), false);
+        db.put(new Nif("87654321B"), true);
     }
 
     @Override

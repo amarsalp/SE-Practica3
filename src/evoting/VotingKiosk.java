@@ -23,17 +23,17 @@ import java.util.List;
 public class VotingKiosk {
 
     // Class members
-    VotingOption selectedVO, toConfirmVO;
-    Boolean activeSession;
-    Voter voter;
-    char opt, cons;
-    List<VotingOption> validParties;
-    SingleBiometricData faceBiometric, fingerBiometric;
-    LocalService localService;
-    ElectoralOrganism electoralOrganism;
-    Scrutiny scrutiny;
-    PassportBiometricReader passportBiometricReader;
-    HumanBiometricScanner humanBiometricScanner;
+    private VotingOption selectedVO, toConfirmVO;
+    private Boolean activeSession;
+    private Voter voter;
+    private char opt, cons;
+    private List<VotingOption> validParties;
+    private SingleBiometricData faceBiometric, fingerBiometric;
+    private LocalService localService;
+    private ElectoralOrganism electoralOrganism;
+    private Scrutiny scrutiny;
+    private PassportBiometricReader passportBiometricReader;
+    private HumanBiometricScanner humanBiometricScanner;
 
     // Constructor
     public VotingKiosk(List<VotingOption> validParties, Scrutiny scrutiny) {
@@ -56,6 +56,7 @@ public class VotingKiosk {
     public void setDocument(char opt) {
         //If the opt is 'N' the user will use the NIF and if the opt is 'P' the user will use the Passport
         this.opt = opt;
+        if (opt == 'N') System.out.println("The support personal have to verify your identity");
     }
 
     public void enterAccount(String login, Password pssw) throws InvalidAccountException, ProceduralException {
@@ -81,13 +82,14 @@ public class VotingKiosk {
         if (opt != 'N') throw new ProceduralException("Invalid operation");
         //Check NIF
         electoralOrganism.canVote(new Nif(nif.getNif()));
+        System.out.println("Correct NIF, processing the right to vote");
         voter.state = Voter.State.enabled;
         voter.nif = nif;
         System.out.println("The nif is able to vote");
     }
 
     public void readPassport() throws NotValidPassportException, PassportBiometricReadingException, ProceduralException, NoExplicitConsentException {
-        if (opt != 'P') throw new ProceduralException("Document not valid here");
+        if (opt != 'P') throw new ProceduralException("Invalid operation");
         grantExplicitConsent(cons);
         passportBiometricReader.validatePassport();
         voter.biometricData = passportBiometricReader.getPassportBiometricData();
@@ -96,20 +98,22 @@ public class VotingKiosk {
     }
 
     public void readFaceBiometrics() throws HumanBiometricScanningException, NoExplicitConsentException, ProceduralException {
-        if (opt != 'P') throw new ProceduralException("Document not valid here");
+        if (opt != 'P') throw new ProceduralException("Invalid operation");
         grantExplicitConsent(cons);
         faceBiometric = humanBiometricScanner.scanFaceBiometrics();
+        System.out.println("Facial biometric correctly checked");
     }
 
     public void readFingerPrintBiometrics()
             throws NotEnabledException, HumanBiometricScanningException,
             BiometricVerificationFailedException, ConnectException, NoExplicitConsentException, ProceduralException {
-        if (opt != 'P') throw new ProceduralException("Document not valid here");
+        if (opt != 'P') throw new ProceduralException("Invalid operation");
         grantExplicitConsent(cons);
         fingerBiometric = humanBiometricScanner.scanFingerprintBiometrics();
         verifiyBiometricData(new BiometricData(fingerBiometric, faceBiometric), voter.biometricData);
         electoralOrganism.canVote(voter.nif);
         voter.state = Voter.State.enabled;
+        System.out.println("Correct identity verification");
     }
 
     public void initOptionsNavigation() {
@@ -121,13 +125,14 @@ public class VotingKiosk {
 
     public void consultVotingOption(VotingOption vopt) {
         this.selectedVO = new VotingOption(vopt.getParty());
+        System.out.println(selectedVO.getParty());
     }
 
     public void vote() throws ProceduralException {
         if (selectedVO == null || !activeSession)
             throw new ProceduralException("The voter has to select a party or init a session");
         toConfirmVO = selectedVO;
-        System.out.println("Party selected, confirmation of the selection needed");
+        System.out.println("Party " + toConfirmVO.getParty() + " selected, confirmation of the selection needed");
     }
 
     public void confirmVotingOption(char conf) throws ConnectException, ProceduralException {
@@ -135,7 +140,7 @@ public class VotingKiosk {
             throw new ProceduralException("The voter has to select a party or init a session");
         //The letter 'c' is used to say it's a confirmations from the voter
         if (conf == 'c') {
-            scrutiny.scrutinize(selectedVO);
+            scrutiny.scrutinize(toConfirmVO);
             electoralOrganism.disableVoter(voter.nif);
             voter.state = Voter.State.disabled;
             finalizeSession();
@@ -148,8 +153,6 @@ public class VotingKiosk {
     // Internal operations
     private void finalizeSession() {
         activeSession = false;
-        //remove all the data from the current voter
-        voter = null;
     }
 
     private void verifiyBiometricData(BiometricData humanBioD, BiometricData passpBioD)
@@ -185,19 +188,17 @@ public class VotingKiosk {
     }
 
     //Class to represent the current voter
-    protected static class Voter {
+    private class Voter {
         State state;
         Nif nif;
         BiometricData biometricData;
 
-        protected Voter() {
+        private Voter() {
             nif = null;
             biometricData = null;
             state = State.disabled;
         }
 
-        protected enum State {disabled, enabled}
+        private enum State {disabled, enabled}
     }
 }
-
-

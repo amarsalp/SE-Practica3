@@ -11,17 +11,17 @@ import java.util.Date;
 
 public class PassportBiometricReaderImpl implements PassportBiometricReader {
 
-    boolean validPassport, validBiometric;
-    Nif nif;
-    SingleBiometricData faceBiometric;
-    SingleBiometricData dactilarBiometric;
-    BiometricData biometricData;
+    private boolean validPassport, validBiometric;
+    private Nif nif;
+    private SingleBiometricData faceBiometric;
+    private SingleBiometricData dactilarBiometric;
+    private BiometricData biometricData;
 
     public PassportBiometricReaderImpl() throws BadFormatException {
         validPassport = true;
         validBiometric = true;
         faceBiometric = new SingleBiometricData("face".getBytes());
-        dactilarBiometric = new SingleBiometricData("fingers".getBytes());
+        dactilarBiometric = new SingleBiometricData("finger".getBytes());
         biometricData = new BiometricData(dactilarBiometric, faceBiometric);
         this.nif = new Nif("12345678A");
     }
@@ -51,10 +51,10 @@ public class PassportBiometricReaderImpl implements PassportBiometricReader {
     public void setValidBiometric(boolean validBiometric) {
         this.validBiometric = validBiometric;
     }
-    public void setFinger(SingleBiometricData fingerData) {
-        this.dactilarBiometric = fingerData;
+
+    public void setNewVoter(SingleBiometricData fingerData, SingleBiometricData faceData, Nif nif) {
+        biometricData = new BiometricData(fingerData, faceData);
+        this.nif = nif;
     }
-    public void setFace(SingleBiometricData facialData) {
-        this.faceBiometric = facialData;
-    }
+
 }

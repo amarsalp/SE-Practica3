@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 public class ScrutinyImpl implements Scrutiny {
-    Map<VotingOption, Integer> scrutinyResults;
-    List<VotingOption> validParties;
-    int totalVotes;
-    VotingOption nullVote;
-    VotingOption blankVote;
+    private Map<VotingOption, Integer> scrutinyResults;
+    private List<VotingOption> validParties;
+    private int totalVotes;
+    private VotingOption nullVote;
+    private VotingOption blankVote;
 
     public ScrutinyImpl() {
         scrutinyResults = new HashMap<>();

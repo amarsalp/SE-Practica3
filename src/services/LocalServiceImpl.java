@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LocalServiceImpl implements LocalService {
-    Map<String, Password> db = new HashMap<>();
+    private Map<String, Password> db = new HashMap<>();
 
     public LocalServiceImpl() throws BadFormatException {
         db.put("user", new Password("Password1"));

@@ -1,7 +1,6 @@
 package evoting;
 
 import data.*;
-import evoting.VotingKiosk.Voter;
 import exceptions.dataExceptions.BadFormatException;
 import exceptions.dataExceptions.InvalidDniException;
 import exceptions.evotingExceptions.ProceduralException;
@@ -19,18 +18,16 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class VotingKioskNIFTest {
+    /*TESTS WHERE THE VOTER FOLLOWS THE CORRECT SEQUENCE FOR VOTING*/
     List<VotingOption> validParties;
     VotingKiosk votingKiosk;
     ElectoralOrganism electoralOrganism;
     LocalService localService;
     Scrutiny scrutiny;
 
-
     @BeforeEach
     void setUp() throws BadFormatException {
-        validParties = new ArrayList(List.of(new VotingOption("Party1"),
-                new VotingOption("Party2"),
-                new VotingOption("Party3")));
+        validParties = new ArrayList(List.of(new VotingOption("Party1"), new VotingOption("Party2")));
         scrutiny = new ScrutinyImpl();
         votingKiosk = new VotingKiosk(validParties, scrutiny);
         electoralOrganism = new ElectoralOrganismImpl();
@@ -39,15 +36,12 @@ public class VotingKioskNIFTest {
         votingKiosk.setLocalService(localService);
     }
 
-    /*opciones de voto son nulas al final de la votacion*/
-    //el mismo votante intenta votar dos veces
     @Test
-    @DisplayName("If no voter has voted all the results of the scrutiny must be zero")
+    @DisplayName("If no voter has voted, all the results of the scrutiny must be zero")
     void zero_votes_test() {
         votingKiosk.initVoting();
         assertEquals(0, scrutiny.getVotesFor(validParties.get(1)));
         assertEquals(0, scrutiny.getVotesFor(validParties.get(2)));
-        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
         assertEquals(0, scrutiny.getBlanks());
         assertEquals(0, scrutiny.getNulls());
         assertEquals(0, scrutiny.getTotal());
@@ -57,74 +51,66 @@ public class VotingKioskNIFTest {
     @DisplayName("Correct voting session")
     void correct_voting_test() throws ProceduralException, InvalidAccountException, InvalidDniException,
             NotEnabledException, ConnectException, BadFormatException {
+
         votingKiosk.initVoting();
-        assertTrue(votingKiosk.activeSession);
         votingKiosk.setDocument('N');
-        assertEquals('N', votingKiosk.opt);
         votingKiosk.enterAccount("user", new Password("Password1"));
         votingKiosk.confirmIdentif('c');
         Nif nif = new Nif("12345678A");
         votingKiosk.enterNif(nif);
-        assertEquals(nif, votingKiosk.voter.nif);
-        assertEquals(Voter.State.enabled, votingKiosk.voter.state);
         votingKiosk.initOptionsNavigation();
         votingKiosk.consultVotingOption(validParties.get(1));
-        assertEquals(votingKiosk.selectedVO, validParties.get(1));
         votingKiosk.vote();
-        assertEquals(votingKiosk.toConfirmVO, validParties.get(1));
         votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
-        assertThrows(NotEnabledException.class, () -> {
-            electoralOrganism.canVote(nif);
-        });
-        assertEquals(Voter.State.disabled, votingKiosk.voter.state);
+        //The voted party has been correctly scrutinized
         assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
         assertEquals(0, scrutiny.getVotesFor(validParties.get(2)));
-        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
+        assertEquals(0, scrutiny.getNulls());
+        assertEquals(0, scrutiny.getBlanks());
         assertEquals(1, scrutiny.getTotal());
-    }
-
-    @Test
-    @DisplayName("Voting wit a different voter to see the persistence of the data on Scrutiny")
-    void scrutiny_persistence_test() throws ProceduralException, InvalidAccountException, InvalidDniException,
-            NotEnabledException, ConnectException, BadFormatException {
+        //The voter is not able to vote again
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
         votingKiosk.enterAccount("user", new Password("Password1"));
         votingKiosk.confirmIdentif('c');
-        Nif nif = new Nif("12345678A");
-        votingKiosk.enterNif(nif);
+        assertThrows(NotEnabledException.class, () -> {
+            votingKiosk.enterNif(nif);
+        });
+        //Another voter votes, the data on Scrutiny has to be persistent
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        Nif nif2 = new Nif("87654321B");
+        votingKiosk.enterNif(nif2);
         votingKiosk.initOptionsNavigation();
         votingKiosk.consultVotingOption(validParties.get(1));
         votingKiosk.vote();
         votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getVotesFor(validParties.get(1)));
-        assertEquals(1, scrutiny.getVotesFor(validParties.get(2)));
-        assertEquals(0, scrutiny.getVotesFor(validParties.get(3)));
+        assertEquals(2, scrutiny.getVotesFor(validParties.get(1)));
+        assertEquals(0, scrutiny.getVotesFor(validParties.get(2)));
+        assertEquals(0, scrutiny.getNulls());
+        assertEquals(0, scrutiny.getBlanks());
         assertEquals(2, scrutiny.getTotal());
     }
 
     @Test
     @DisplayName("Test scrutiny blank vote")
-    void BlankVoteTest() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("blankVote");
-        votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
-        votingKiosk.vote();
-        votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getBlanks());
-        assertEquals(1, scrutiny.getTotal());
-    }
+    void blank_vote_test() throws ProceduralException, ConnectException, BadFormatException,
+            InvalidAccountException, InvalidDniException, NotEnabledException {
 
-    @Test
-    @DisplayName("Test scrutiny Voting Option")
-    void VotingOptionTest() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("Party1");
         votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        Nif nif = new Nif("12345678A");
+        votingKiosk.enterNif(nif);
+        votingKiosk.initOptionsNavigation();
+        votingKiosk.consultVotingOption(new VotingOption("blankVote"));
         votingKiosk.vote();
         votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getVotesFor(vO));
+        //blank vote has been scrutinized correctly
+        assertEquals(1, scrutiny.getBlanks());
         assertEquals(1, scrutiny.getTotal());
     }
 }

@@ -1,5 +1,6 @@
 package data;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class SingleBiometricData {
@@ -15,7 +16,7 @@ public class SingleBiometricData {
 
     @Override
     public String toString() {
-        return "Biometric data {" + "BioDat='" + Arrays.toString(biometricData) + '\'' + '}';
+        return "Biometric data {" + "BioDat='" + new String(biometricData, StandardCharsets.UTF_8) + '\'' + '}';
     }
 
     @Override

@@ -16,7 +16,6 @@ final public class VotingOption {
         this.party = option;
     }
 
-
     public String getParty() {
         return this.party;
     }

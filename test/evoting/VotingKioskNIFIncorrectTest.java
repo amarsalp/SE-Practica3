@@ -3,7 +3,8 @@ package evoting;
 import data.*;
 import exceptions.dataExceptions.BadFormatException;
 import exceptions.dataExceptions.InvalidDniException;
-import exceptions.evotingExceptions.ProceduralException;
+import exceptions.evotingExceptions.*;
+import exceptions.serviceExceptions.InvalidAccountException;
 import exceptions.serviceExceptions.NotEnabledException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,9 +28,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @BeforeEach
     void setUp() throws BadFormatException {
-        validParties = new ArrayList(List.of(new VotingOption("Party1"),
-                new VotingOption("Party2"),
-                new VotingOption("Party3")));
+        validParties = new ArrayList(List.of(new VotingOption("Party1"), new VotingOption("Party2")));
         scrutiny = new ScrutinyImpl();
         votingKiosk = new VotingKiosk(validParties, scrutiny);
         electoralOrganism = new ElectoralOrganismImpl();
@@ -38,62 +37,124 @@ public class VotingKioskNIFIncorrectTest {
         votingKiosk.setLocalService(localService);
     }
 
-    /*
-        Test no activeSession
-        Test mal documento setDocuement
-        Test mal eneterAccount
-        Test no confirmIdentif
-        assertThrows(InvalidDniException.class, () -> {
-            votingKiosk.confirmVotingOption('c');
+    @Test
+    @DisplayName("the voter should not be able to to user a different identification method than the selected")
+    void wrong_identification_method() {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.grantExplicitConsent('c');
+            votingKiosk.readPassport();
+            votingKiosk.readFaceBiometrics();
+            votingKiosk.readFingerPrintBiometrics();
         });
-        Test false nif, not in the dataase enterNif
-        Test confultar un vopt falso consultVotingOption
-        Test no activeSession vote
-        Test no activeSession, no confirm vote ConfirmVotingOption
-
-        Test persona vote dos veces
-     */
+    }
 
     @Test
-    @DisplayName("not a confirmIdentif")
-    void confirmIdentTest() {
+    @DisplayName("the support personal enters an incorrect user or password")
+    void wrong_enterAccount() {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        //user does not exist
+        assertThrows(InvalidAccountException.class, () -> {
+            votingKiosk.enterAccount("a", new Password("Password1"));
+        });
+        //password is incorrect
+        assertThrows(InvalidAccountException.class, () -> {
+            votingKiosk.enterAccount("user", new Password("WrongPass1"));
+        });
+    }
+
+    @Test
+    @DisplayName("the support personal dos not accept the Nif provided")
+    void not_confirmIdent() throws BadFormatException, ProceduralException, InvalidAccountException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
         assertThrows(InvalidDniException.class, () -> {
             votingKiosk.confirmIdentif('s');
         });
     }
 
     @Test
-    @DisplayName("Error format Nif")
-    void NotCorrectNifTest(){
+    @DisplayName("the support personal enters a non valid nif")
+    void non_valid_nif() throws BadFormatException, ProceduralException, InvalidAccountException, InvalidDniException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        //the support personal enters a nif that is not in correct format
         assertThrows(BadFormatException.class, () -> {
             votingKiosk.enterNif(new Nif("A"));
+        });
+        //the nif is not on the electoral organism database (the voter is not in the correct vote center)
+        assertThrows(NotEnabledException.class, () -> {
+            votingKiosk.enterNif(new Nif("23456789A"));
         });
     }
 
     @Test
-    @DisplayName("Nif not in the db")
-    void NotInDBNif() throws BadFormatException{
-        Nif nif = new Nif("23456789A");
-        assertThrows(NotEnabledException.class, () -> {
-            votingKiosk.enterNif(nif);
+    @DisplayName("the voter tries the vote option without selecting consulting one previously")
+    void not_selected_VO() throws BadFormatException, ProceduralException, InvalidAccountException, InvalidDniException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        votingKiosk.initOptionsNavigation();
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.vote();
         });
     }
+
+    @Test
+    @DisplayName("the voter tries the vote option without starting a session")
+    void no_active_session() throws BadFormatException, ProceduralException, InvalidAccountException, InvalidDniException {
+        votingKiosk.consultVotingOption(validParties.get(1));
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.vote();
+        });
+    }
+
+    @Test
+    @DisplayName("the voter tries the confirm vote option without selecting vote previously")
+    void not_selected_VO_2() throws BadFormatException, ProceduralException, InvalidAccountException, InvalidDniException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        votingKiosk.initOptionsNavigation();
+        votingKiosk.consultVotingOption(validParties.get(1));
+        assertThrows(ProceduralException.class, () -> {
+            votingKiosk.confirmVotingOption('c');
+        });
+    }
+
     @Test
     @DisplayName("Null voting option")
-    void NotConfirmedVote() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("Patata");
+    void null_voting_option() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException {
         votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
-        assertEquals(vO,votingKiosk.selectedVO);
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        votingKiosk.initOptionsNavigation();
+        votingKiosk.consultVotingOption(new VotingOption("Patata"));
         votingKiosk.vote();
-        assertEquals(vO, votingKiosk.selectedVO);
-        votingKiosk.confirmVotingOption('s');
-        assertNull(votingKiosk.toConfirmVO);
-        assertNull(votingKiosk.selectedVO);
+        votingKiosk.confirmVotingOption('c');
+        assertEquals(1, scrutiny.getNulls());
+        assertEquals(1, scrutiny.getTotal());
     }
+
     @Test
-    @DisplayName("No active session")
-    void NotActiveSession(){
+    @DisplayName("if the voter does not confirm his selection his previous selections are set to null")
+    void not_confirmed_vote() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException {
+        votingKiosk.initVoting();
+        votingKiosk.setDocument('N');
+        votingKiosk.enterAccount("user", new Password("Password1"));
+        votingKiosk.confirmIdentif('c');
+        votingKiosk.initOptionsNavigation();
+        votingKiosk.consultVotingOption(new VotingOption("Patata"));
+        votingKiosk.vote();
+        votingKiosk.confirmVotingOption('n');
         assertThrows(ProceduralException.class, () -> {
             votingKiosk.vote();
         });
@@ -101,18 +162,4 @@ public class VotingKioskNIFIncorrectTest {
             votingKiosk.confirmVotingOption('c');
         });
     }
-    @Test
-    @DisplayName("Null voting option")
-    void NullVotingOption() throws ProceduralException, ConnectException {
-        VotingOption vO = new VotingOption("Patata");
-        votingKiosk.initVoting();
-        votingKiosk.consultVotingOption(vO);
-        votingKiosk.vote();
-        votingKiosk.confirmVotingOption('c');
-        assertEquals(1, scrutiny.getNulls());
-        assertEquals(1, scrutiny.getTotal());
-    }
-
-
-
 }
