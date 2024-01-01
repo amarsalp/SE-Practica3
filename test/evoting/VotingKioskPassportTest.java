@@ -1,15 +1,12 @@
 package evoting;
 
 import data.Nif;
-import data.Password;
 import data.SingleBiometricData;
 import data.VotingOption;
 import evoting.biometricdataperipheral.HumanBiometricScannerImpl;
 import evoting.biometricdataperipheral.PassportBiometricReaderImpl;
 import exceptions.dataExceptions.BadFormatException;
-import exceptions.dataExceptions.InvalidDniException;
 import exceptions.evotingExceptions.*;
-import exceptions.serviceExceptions.InvalidAccountException;
 import exceptions.serviceExceptions.NotEnabledException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
