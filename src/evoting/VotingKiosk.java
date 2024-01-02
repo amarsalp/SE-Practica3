@@ -139,7 +139,7 @@ public class VotingKiosk {
         System.out.println("Party " + toConfirmVO.getParty() + " selected, confirmation of the selection needed");
     }
 
-    public void confirmVotingOption(char conf) throws ConnectException, ProceduralException{
+    public void confirmVotingOption(char conf) throws ConnectException, ProceduralException {
         if (toConfirmVO == null || !activeSession)
             throw new ProceduralException("The voter has to select a party or init a session");
         //The letter 'c' is used to say it's a confirmations from the voter

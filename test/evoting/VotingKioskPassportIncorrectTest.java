@@ -131,6 +131,7 @@ public class VotingKioskPassportIncorrectTest {
             votingKiosk.readFingerPrintBiometrics();
         });
     }
+
     @Test
     @DisplayName("passport and human biometrics does not match")
     void not_matching_biometrics() throws NoExplicitConsentException, ProceduralException, PassportBiometricReadingException,

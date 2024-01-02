@@ -44,8 +44,14 @@ public class VotingKioskNIFIncorrectTest {
         votingKiosk.setDocument('N');
         assertThrows(ProceduralException.class, () -> {
             votingKiosk.grantExplicitConsent('c');
+        });
+        assertThrows(ProceduralException.class, () -> {
             votingKiosk.readPassport();
+        });
+        assertThrows(ProceduralException.class, () -> {
             votingKiosk.readFaceBiometrics();
+        });
+        assertThrows(ProceduralException.class, () -> {
             votingKiosk.readFingerPrintBiometrics();
         });
     }
@@ -108,7 +114,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("the voter tries the vote option without starting a session")
-    void no_active_session(){
+    void no_active_session() {
         votingKiosk.consultVotingOption(validParties.get(1));
         assertThrows(ProceduralException.class, () -> {
             votingKiosk.vote();
@@ -131,7 +137,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("Null voting option")
-    void null_voting_option() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException{
+    void null_voting_option() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException {
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
         votingKiosk.enterAccount("user", new Password("Password1"));
@@ -146,7 +152,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("if the voter does not confirm his selection his previous selections are set to null")
-    void not_confirmed_vote() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException{
+    void not_confirmed_vote() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException {
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
         votingKiosk.enterAccount("user", new Password("Password1"));
