@@ -108,7 +108,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("the voter tries the vote option without starting a session")
-    void no_active_session() throws BadFormatException, ProceduralException, InvalidAccountException, InvalidDniException {
+    void no_active_session(){
         votingKiosk.consultVotingOption(validParties.get(1));
         assertThrows(ProceduralException.class, () -> {
             votingKiosk.vote();
@@ -131,7 +131,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("Null voting option")
-    void null_voting_option() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException, InterruptedException {
+    void null_voting_option() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException{
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
         votingKiosk.enterAccount("user", new Password("Password1"));
@@ -146,7 +146,7 @@ public class VotingKioskNIFIncorrectTest {
 
     @Test
     @DisplayName("if the voter does not confirm his selection his previous selections are set to null")
-    void not_confirmed_vote() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException, InterruptedException {
+    void not_confirmed_vote() throws ProceduralException, BadFormatException, InvalidAccountException, InvalidDniException, ConnectException{
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
         votingKiosk.enterAccount("user", new Password("Password1"));
