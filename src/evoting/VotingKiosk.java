@@ -15,6 +15,7 @@ import evoting.biometricdataperipheral.HumanBiometricScanner;
 import java.net.ConnectException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -57,6 +58,7 @@ public class VotingKiosk {
         //If the opt is 'N' the user will use the NIF and if the opt is 'P' the user will use the Passport
         this.opt = opt;
         if (opt == 'N') System.out.println("The support personal have to verify your identity");
+        if (opt == 'P') System.out.println("Accept the explicit consent to continue");
     }
 
     public void enterAccount(String login, Password pssw) throws InvalidAccountException, ProceduralException {
@@ -70,12 +72,14 @@ public class VotingKiosk {
         //The letter 'c' is used to say that the voter consent the process
         if (cons != 'c') throw new NoExplicitConsentException("The consent was declined");
         this.cons = cons;
+        System.out.println("Explicit consent granted");
     }
 
     public void confirmIdentif(char conf) throws InvalidDniException, ProceduralException {
         if (opt != 'N') throw new ProceduralException("Invalid operation");
         //The letter 'c' is used to say it's a confirmations from the support staff .
         if (conf != 'c') throw new InvalidDniException("Not valid identification");
+        System.out.println("Insert your NIF");
     }
 
     public void enterNif(Nif nif) throws NotEnabledException, ConnectException, BadFormatException, ProceduralException {
@@ -113,7 +117,7 @@ public class VotingKiosk {
         verifiyBiometricData(new BiometricData(fingerBiometric, faceBiometric), voter.biometricData);
         electoralOrganism.canVote(voter.nif);
         voter.state = Voter.State.enabled;
-        System.out.println("Correct identity verification");
+        System.out.println("Correct identity verification and possibility to vote granted");
     }
 
     public void initOptionsNavigation() {
@@ -135,7 +139,7 @@ public class VotingKiosk {
         System.out.println("Party " + toConfirmVO.getParty() + " selected, confirmation of the selection needed");
     }
 
-    public void confirmVotingOption(char conf) throws ConnectException, ProceduralException {
+    public void confirmVotingOption(char conf) throws ConnectException, ProceduralException, InterruptedException {
         if (toConfirmVO == null || !activeSession)
             throw new ProceduralException("The voter has to select a party or init a session");
         //The letter 'c' is used to say it's a confirmations from the voter
@@ -143,6 +147,9 @@ public class VotingKiosk {
             scrutiny.scrutinize(toConfirmVO);
             electoralOrganism.disableVoter(voter.nif);
             voter.state = Voter.State.disabled;
+            System.out.println("Vote in progress");
+            TimeUnit.SECONDS.sleep(1);
+            System.out.println("Emitted vote");
             finalizeSession();
         } else {
             toConfirmVO = null;

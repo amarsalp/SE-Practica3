@@ -48,7 +48,7 @@ public class VotingKioskPassportTest {
     @DisplayName("Correct voting session")
     void correct_voting_test() throws NoExplicitConsentException, ProceduralException, PassportBiometricReadingException,
             NotValidPassportException, HumanBiometricScanningException, BiometricVerificationFailedException,
-            NotEnabledException, ConnectException, BadFormatException {
+            NotEnabledException, ConnectException, BadFormatException, InterruptedException {
         votingKiosk.initVoting();
         votingKiosk.setDocument('P');
         votingKiosk.grantExplicitConsent('c');
@@ -101,7 +101,7 @@ public class VotingKioskPassportTest {
     @DisplayName("Test scrutiny blank vote")
     void BlankVoteTest() throws ProceduralException, ConnectException, NotEnabledException,
             NoExplicitConsentException, PassportBiometricReadingException, NotValidPassportException,
-            HumanBiometricScanningException, BiometricVerificationFailedException {
+            HumanBiometricScanningException, BiometricVerificationFailedException, InterruptedException {
 
         votingKiosk.initVoting();
         votingKiosk.setDocument('P');

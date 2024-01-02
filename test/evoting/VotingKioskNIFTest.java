@@ -50,7 +50,7 @@ public class VotingKioskNIFTest {
     @Test
     @DisplayName("Correct voting session")
     void correct_voting_test() throws ProceduralException, InvalidAccountException, InvalidDniException,
-            NotEnabledException, ConnectException, BadFormatException {
+            NotEnabledException, ConnectException, BadFormatException, InterruptedException {
 
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
@@ -97,7 +97,7 @@ public class VotingKioskNIFTest {
     @Test
     @DisplayName("Test scrutiny blank vote")
     void blank_vote_test() throws ProceduralException, ConnectException, BadFormatException,
-            InvalidAccountException, InvalidDniException, NotEnabledException {
+            InvalidAccountException, InvalidDniException, NotEnabledException, InterruptedException {
 
         votingKiosk.initVoting();
         votingKiosk.setDocument('N');
